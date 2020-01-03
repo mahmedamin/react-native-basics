@@ -11,11 +11,13 @@ import {StyleSheet, View, TextInput, Button, Text} from 'react-native';
 import PlaceList from './src/components/PlaceList/PlaceList';
 import PlaceInput from './src/components/PlaceInput/PlaceInput';
 // import placeImage from './src/assets/pexels-photo-414612.jpeg';
+import PlaceDetail from './src/components/PlaceDetail/PlaceDetail';
 
 export default class App extends Component {
     state = {
         placeName: '',
-        places: []
+        places: [],
+        selectedPlace: null
     };
 
     placeNameChangeHandler = (val) => {
@@ -33,9 +35,8 @@ export default class App extends Component {
                 places: prevState.places.concat({
                     name: placeName,
                     key: Math.random(),
-                    // image: placeImage
                     image: {
-                        uri:'https://i.ytimg.com/vi/7smahC_IAiY/maxresdefault.jpg'
+                        uri: 'https://i.ytimg.com/vi/7smahC_IAiY/maxresdefault.jpg'
                     }
                 }),
                 placeName: ''
@@ -43,22 +44,41 @@ export default class App extends Component {
         })
     };
 
-    removeItemHandler = (index) => {
+    clickItemHandler = key => {
         this.setState(prevState => {
             return {
-                places: prevState.places.filter((place) => {
-                    return index !== place.key;
+                selectedPlace: prevState.places.find(place => {
+                    return place.key === key;
                 })
             }
         });
-    }
+    };
+
+    removeItemHandler = () => {
+        this.setState(prevState => {
+            return {
+                places: prevState.places.filter((place) => {
+                    return prevState.selectedPlace.key !== place.key;
+                }),
+                selectedPlace: null
+            }
+        });
+    };
+
+    closeModalHandler = () => {
+        this.setState({
+            selectedPlace: null
+        });
+    };
 
     render() {
         return (
             <View style={styles.container}>
+                <PlaceDetail selectedPlace={this.state.selectedPlace} removeItemHandler={this.removeItemHandler}
+                             closeModalHandler={this.closeModalHandler}/>
                 <PlaceInput placeName={this.state.placeName} placeSubmitHandler={this.placeSubmitHandler}
                             placeNameChangeHandler={this.placeNameChangeHandler}/>
-                <PlaceList places={this.state.places} removeItemHandler={this.removeItemHandler}/>
+                <PlaceList places={this.state.places} clickItemHandler={this.clickItemHandler}/>
             </View>
         );
     }
